@@ -19,7 +19,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     GOPATH=/work/.remote-ide/go \
     GOMODCACHE=/work/.remote-ide/go/pkg/mod \
     R_LIBS_USER=/work/.remote-ide/R/library \
-    PATH=/usr/local/go/bin:/opt/cargo/bin:/work/.remote-ide/go/bin:${PATH} \
+    PATH=/usr/local/go/bin:/opt/cargo/bin:/work/.remote-ide/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
     PYTHONUNBUFFERED=1
 
 # Deepnote Toolkit config: start our extra server automatically when its managed
@@ -59,6 +59,9 @@ RUN curl -fsSL https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz -o /tmp/go.t
     && rm -f /tmp/go.tar.gz \
     && GOBIN=/usr/local/bin go install golang.org/x/tools/gopls@latest \
     && GOBIN=/usr/local/bin go install github.com/go-delve/delve/cmd/dlv@latest
+
+# Make the language tool entry points unambiguous.
+RUN ln -sf /usr/local/go/bin/go /usr/local/bin/go     && ln -sf /usr/local/go/bin/gofmt /usr/local/bin/gofmt     && ln -sf /usr/local/go/bin/go /usr/bin/go     && ln -sf /usr/local/go/bin/gofmt /usr/bin/gofmt     && ln -sf /opt/cargo/bin/rustc /usr/local/bin/rustc     && ln -sf /opt/cargo/bin/cargo /usr/local/bin/cargo
 
 ENV RUSTUP_HOME=/opt/rustup CARGO_HOME=/opt/cargo
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile default \

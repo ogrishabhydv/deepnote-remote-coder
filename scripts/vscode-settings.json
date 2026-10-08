@@ -1,0 +1,11 @@
+{
+  "telemetry.telemetryLevel": "off",
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+  "git.autofetch": true,
+  "editor.minimap.enabled": false,
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "workbench.startupEditor": "none",
+  "window.restoreWindows": "all",
+  "extensions.autoUpdate": false
+}

@@ -1,0 +1,58 @@
+name: Build and publish Deepnote image
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-test-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build amd64 image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/deepnote-remote-coder:latest
+          load: true
+
+      - name: Smoke-test the image
+        env:
+          IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/deepnote-remote-coder:latest
+        run: |
+          docker run --rm "$IMAGE" bash -lc '
+            set -e
+            python --version
+            java -version 2>&1 | head -n 1
+            node --version
+            npm --version
+            git --version
+            gcc --version | head -n 1
+            g++ --version | head -n 1
+            cmake --version | head -n 1
+            mvn --version | head -n 3
+            gradle --version | head -n 6
+            code-server --version
+            python -m py_compile /opt/remote-ide/remote_ide_manager.py /opt/remote-ide/remote_ide_jupyter_extension.py
+            python -c "import remote_ide_jupyter_extension; print(\"extension import: OK\")"
+            python /opt/remote-ide/remote_ide_manager.py start
+            curl -fsS http://127.0.0.1:8080/healthz
+            echo
+            python /opt/remote-ide/remote_ide_manager.py status
+          '
+
+      - name: Push tested image
+        env:
+          IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/deepnote-remote-coder:latest
+        run: docker push "$IMAGE"

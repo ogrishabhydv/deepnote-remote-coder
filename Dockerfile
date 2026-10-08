@@ -81,12 +81,13 @@ ENV R_LIBS_SITE=/opt/R/site-library
 RUN curl -fsSL https://code-server.dev/install.sh | sh -s -- --version "${CODE_SERVER_VERSION}" \
     && code-server --version
 
-RUN mkdir -p /opt/remote-ide/bundled-extensions /work/.remote-ide /work/projects
+RUN mkdir -p /opt/remote-ide/bundled-extensions /work/.remote-ide /work/projects     && ln -sfn /work /root/work
 
 COPY scripts/remote_ide_manager.py /opt/remote-ide/remote_ide_manager.py
 COPY scripts/start-code-server.sh /opt/remote-ide/start-code-server.sh
 COPY scripts/install-vscode-extensions.sh /opt/remote-ide/install-vscode-extensions.sh
 COPY scripts/vscode-settings.json /opt/remote-ide/vscode-settings.json
+COPY deepnote-smoke-test.py /opt/remote-ide/deepnote-smoke-test.py
 
 RUN chmod 755 /opt/remote-ide/*.sh /opt/remote-ide/remote_ide_manager.py \
     && python -m py_compile /opt/remote-ide/remote_ide_manager.py \
